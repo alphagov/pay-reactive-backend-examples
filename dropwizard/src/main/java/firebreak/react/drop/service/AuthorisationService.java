@@ -36,7 +36,7 @@ public class AuthorisationService {
 
     private Func1<Charge, Observable<Response>> operation(Card card) {
         return charge -> RxObservable.newClient()
-                .target("http://google.co.uk")
+                .target("http://example.com")
                 .request()
                 .rx()
                 .get();
