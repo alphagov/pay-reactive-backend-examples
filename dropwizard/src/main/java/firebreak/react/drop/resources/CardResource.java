@@ -12,6 +12,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -38,24 +39,34 @@ public class CardResource {
         asyncResponse.setTimeout(1, TimeUnit.SECONDS);
 
         new Thread(() -> {
-            if (validateCardDetails(card)) {
-                String response = authService.authorise(card);
-                System.out.println(">>> yey - authorisation happened");
-                asyncResponse.resume(Response.ok(response).build());
-            } else {
-                asyncResponse.resume(Response.status(BAD_REQUEST).entity("{\"message\":\"invalid card details\"}").build());
-            }
+            validateCardDetails()
+                    .andThen(authoriseAndRespond(card,asyncResponse))
+                    .apply(card);
         }).start();
     }
 
-    private boolean validateCardDetails(Card card) {
-        if (isBlank(card.getCardHolder()) ||
-                isBlank(card.getCardNumber()) ||
-                isBlank(card.getCvc()) ||
-                isBlank(card.getAddress())) {
-            return false;
-        }
-        return true;
+    private Function<Boolean, Void> authoriseAndRespond(Card card, AsyncResponse asyncResponse) {
+        return valid -> {
+            if (!valid) {
+                asyncResponse.resume(Response.status(BAD_REQUEST).entity("{\"message\":\"invalid card details\"}").build());
+            } else {
+                authService.doAuthorise(card, response -> asyncResponse.resume(Response.ok(response).build()));
+            }
+            return null;
+        };
+    }
+
+    private Function<Card, Boolean> validateCardDetails() {
+        return card -> {
+            if (isBlank(card.getCardHolder()) ||
+                    isBlank(card.getCardNumber()) ||
+                    isBlank(card.getCvc()) ||
+                    isBlank(card.getAddress())) {
+                return false;
+            }
+            return true;
+        };
+
     }
 
     private String sayHello() {
