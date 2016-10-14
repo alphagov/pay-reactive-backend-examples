@@ -14,7 +14,7 @@ and lack of libraries / frameworks. However, over the last few years with the in
 several popular libraries and frameworks (e.g. guava listenable futures, Rx Java, Akka) the landscape is slowly shifting towards 
 asynchronous non-blocking architectures in Java technology. 
 
-The biggest challenge yet is the mentality change of developers from the traditional synchronous programming model to a more functional / reactive 
+The biggest challenge yet is the mentality change of developer community from a more traditional synchronous programming model to a more functional / reactive 
 programming model in order to gain the advantages these recent developments. 
  
 This repository presents couple of alternative non-blocking programming models that is viable for GOV.UK Pay.
