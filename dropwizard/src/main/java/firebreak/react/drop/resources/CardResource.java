@@ -40,17 +40,18 @@ public class CardResource {
 
         new Thread(() -> {
             validateCardDetails()
-                    .andThen(authoriseAndRespond(card,asyncResponse))
+                    .andThen(authoriseAndRespond(chargeId, card, asyncResponse))
                     .apply(card);
         }).start();
     }
 
-    private Function<Boolean, Void> authoriseAndRespond(Card card, AsyncResponse asyncResponse) {
+    private Function<Boolean, Void> authoriseAndRespond(String chargeId, Card card, AsyncResponse asyncResponse) {
         return valid -> {
             if (!valid) {
                 asyncResponse.resume(Response.status(BAD_REQUEST).entity("{\"message\":\"invalid card details\"}").build());
             } else {
-                authService.doAuthorise(card, response -> asyncResponse.resume(Response.ok(response).build()));
+                authService.doAuthorise(chargeId, card,
+                        response -> asyncResponse.resume(Response.ok(response).build()));
             }
             return null;
         };
