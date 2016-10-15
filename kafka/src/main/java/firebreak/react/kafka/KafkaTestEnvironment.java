@@ -5,7 +5,12 @@ import com.google.common.io.Resources;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 
 public class KafkaTestEnvironment {
 
@@ -14,6 +19,8 @@ public class KafkaTestEnvironment {
     private Properties kafkaProperties;
     private ZooKeeperLocalServer zookeeper;
     private int zkPort;
+    private List<String> topics = newArrayList("test-1");
+    private KafkaAdmin kafkaAdmin;
 
     public static KafkaTestEnvironment aKafkaTestEnvironment() {
         return new KafkaTestEnvironment();
@@ -38,15 +45,30 @@ public class KafkaTestEnvironment {
         return this;
     }
 
+    public KafkaTestEnvironment withTopics(String ... topics){
+        this.topics = Arrays.asList(topics);
+        return this;
+    }
+
     public void startup() {
         startZooKeeper();
         startKafka();
+        setupTopics();
+    }
+
+    private void setupTopics() {
+        kafkaAdmin = new KafkaAdmin(format("localhost:%d", zkPort));
+        kafkaAdmin.createTopics(topics);
+    }
+
+    public boolean hasTopic(String topic) {
+        return kafkaAdmin.hasTopic(topic);
     }
 
     public void shutdown() {
         stopKafka();
         stopZooKeeper();
-
+        kafkaAdmin.close();
     }
 
     private void stopKafka() {
