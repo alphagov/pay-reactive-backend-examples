@@ -1,8 +1,8 @@
-package firebreak.react.drop.service;
+package react.backend.common.service;
 
-import firebreak.react.drop.model.Card;
-import firebreak.react.drop.model.Charge;
 import org.glassfish.jersey.client.rx.rxjava.RxObservable;
+import react.backend.common.model.Card;
+import react.backend.common.model.Charge;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -12,6 +12,11 @@ import java.util.function.Consumer;
 
 public class AuthorisationService {
     private final Long authorisationDelay;
+
+    public AuthorisationService() {
+        //forratpack
+        authorisationDelay = 2L;
+    }
 
     public AuthorisationService(Long authorisationDelay) {
         this.authorisationDelay = authorisationDelay;

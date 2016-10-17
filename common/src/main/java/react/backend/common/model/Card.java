@@ -1,4 +1,4 @@
-package firebreak.react.drop.model;
+package react.backend.common.model;
 
 public class Card {
 
