@@ -1,6 +1,5 @@
 package firebreak.react.kafka;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertFalse;
@@ -10,7 +9,8 @@ public class KafkaTestEnvironmentTest {
 
     @Test
     public void shouldStartAKafkaTestEnvironmentWithTopics() throws Exception {
-        KafkaTestEnvironment testEnvironment = KafkaTestEnvironment.aKafkaTestEnvironment()
+        KafkaTestEnvironment testEnvironment = KafkaTestEnvironment
+                .aKafkaTestEnvironment()
                 .withTopics("kas-outbound", "kas-inbound");
         testEnvironment.startup();
 
