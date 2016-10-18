@@ -19,6 +19,7 @@ public class App {
             CardResource cardResource = chain.getRegistry().get(CardResource.class);
             chain
                     .path("authorise/:chargeId", cardResource.authorise())
+                    .path("authoriseObserve/:chargeId", cardResource.authoriseObserve())
                     .get(ctx -> ctx.render("{\"message\": \"Hello from (Dean Martin)\"}"));
         };
     }
