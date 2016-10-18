@@ -47,6 +47,20 @@ public class CardResourceTest {
         });
     }
 
+    @Test
+    public void shouldAuthoriseObserve() throws Exception {
+        ImmutableMap<String, String> cardData = ImmutableMap.of("cardHolder", "holder", "cardNumber", "number", "cvc", "123", "address", "EC2 4RT");
+        app.test(client -> {
+            ReceivedResponse receivedResponse = client.requestSpec(requestSpec ->
+                    requestSpec.body(body -> body.text(mapper.writeValueAsString(cardData))))
+                    .post(format("/authoriseObserve/%s", "7473458"));
+
+            assertThat(receivedResponse.getStatusCode(), is(200));
+            JsonNode message = mapper.readTree(receivedResponse.getBody().getText());
+            assertThat(message.get("message").asText(), is("success"));
+        });
+    }
+
     @After
     public void after() throws Exception {
         app.close();
