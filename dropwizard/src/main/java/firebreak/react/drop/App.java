@@ -2,7 +2,7 @@ package firebreak.react.drop;
 
 import com.google.common.io.Resources;
 import firebreak.react.drop.resources.CardResource;
-import react.backend.common.service.AuthorisationService;
+import firebreak.react.drop.resources.AuthorisationService;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
 

@@ -1,8 +1,7 @@
 package firebreak.react.drop.resources;
 
 
-import react.backend.common.model.Card;
-import react.backend.common.service.AuthorisationService;
+import firebreak.react.drop.model.Card;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;

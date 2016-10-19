@@ -1,4 +1,4 @@
-package react.backend.common.model;
+package firebreak.react.rat.model;
 
 public class Card {
 

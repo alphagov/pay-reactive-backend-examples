@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import firebreak.react.rat.model.Card;
+import firebreak.react.rat.model.Charge;
 import org.apache.commons.lang3.tuple.Pair;
 import ratpack.exec.Promise;
 import ratpack.func.Block;
@@ -12,8 +14,6 @@ import ratpack.handling.Handler;
 import ratpack.http.TypedData;
 import ratpack.http.client.HttpClient;
 import ratpack.http.client.ReceivedResponse;
-import react.backend.common.model.Card;
-import react.backend.common.model.Charge;
 import rx.Observable;
 
 import java.io.IOException;

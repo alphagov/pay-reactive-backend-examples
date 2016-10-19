@@ -1,4 +1,4 @@
-package react.backend.common.model;
+package firebreak.react.drop.model;
 
 public class Charge {
     private final String chargeId;
