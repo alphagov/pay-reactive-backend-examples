@@ -55,9 +55,10 @@ public class CardResourceTest {
                     requestSpec.body(body -> body.text(mapper.writeValueAsString(cardData))))
                     .post(format("/authoriseObserve/%s", "7473458"));
 
-            assertThat(receivedResponse.getStatusCode(), is(200));
+            Thread.sleep(3000);
+            assertThat(receivedResponse.getStatusCode(), is(202));
             JsonNode message = mapper.readTree(receivedResponse.getBody().getText());
-            assertThat(message.get("message").asText(), is("success"));
+            assertThat(message.get("message").asText(), is("timedout error"));
         });
     }
 
