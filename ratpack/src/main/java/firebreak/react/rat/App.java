@@ -5,11 +5,17 @@ import ratpack.guice.Guice;
 import ratpack.handling.Chain;
 import ratpack.server.RatpackServerSpec;
 
+import java.util.Map;
+
 public class App {
 
-    public static Action<RatpackServerSpec> serverSpec() {
+    public static Action<RatpackServerSpec> serverSpec(Map<String, String> configOverrides) {
         return server -> server
-                .registry(Guice.registry(bindingsSpec -> bindingsSpec.module(ServiceModule.class)))
+                .serverConfig(config -> config
+                        .props(configOverrides)
+                        .require("/app", AppConfig.class))
+                .registry(Guice.registry(bindingsSpec ->
+                        bindingsSpec.module(new ServiceModule(bindingsSpec.getServerConfig()))))
                 .handlers(registerHandlerChain());
     }
 

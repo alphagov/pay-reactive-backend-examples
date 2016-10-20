@@ -21,7 +21,7 @@ public class CardResourceTest {
 
     @Before
     public void before() throws Exception {
-        app = EmbeddedApp.of(serverSpec());
+        app = EmbeddedApp.of(serverSpec(ImmutableMap.of("app.authDelay", "0")));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class CardResourceTest {
     }
 
     @Test
-    public void shouldAuthoriseObserve() throws Exception {
+    public void shouldAuthoriseObserveWithNoDelay() throws Exception {
         ImmutableMap<String, String> cardData = ImmutableMap.of("cardHolder", "holder", "cardNumber", "number", "cvc", "123", "address", "EC2 4RT");
         app.test(client -> {
             ReceivedResponse receivedResponse = client.requestSpec(requestSpec ->
@@ -58,6 +58,7 @@ public class CardResourceTest {
             assertThat(receivedResponse.getStatusCode(), is(200));
             JsonNode message = mapper.readTree(receivedResponse.getBody().getText());
             assertThat(message.get("message").asText(), is("success"));
+            Thread.sleep(1500);
         });
     }
 

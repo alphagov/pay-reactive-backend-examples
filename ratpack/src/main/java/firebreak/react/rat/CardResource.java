@@ -14,21 +14,30 @@ import ratpack.handling.Handler;
 import ratpack.http.TypedData;
 import ratpack.http.client.HttpClient;
 import ratpack.http.client.ReceivedResponse;
+import ratpack.rx.RxRatpack;
+import ratpack.server.ServerConfig;
 import rx.Observable;
+import rx.Subscriber;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static ratpack.rx.RxRatpack.observe;
 
 public class CardResource {
 
     private final ObjectMapper mapper;
+    private final Integer authDelay;
 
     @Inject
-    public CardResource(ObjectMapper mapper) {
+    public CardResource(ServerConfig serverConfig, ObjectMapper mapper) {
         this.mapper = mapper;
+        AppConfig appConfig = serverConfig.get("/app", AppConfig.class);
+        this.authDelay = appConfig.authDelayAsInt();
     }
 
     public Handler authorise() {
@@ -63,17 +72,58 @@ public class CardResource {
         return () -> {
             String chargeId = ctx.getPathTokens().get("chargeId");
 
-            Observable<Promise<ReceivedResponse>> gatewayObserver = observe(ctx.getRequest().getBody()
+            Observable<Promise<Pair<Integer, String>>> authWorkflow = observe(ctx.getRequest().getBody()
                     .map(bodyData -> validateCardDetails(bodyData))
                     .onError(error -> dispatchResponse(ctx, 400, error.getMessage()))
                     .map(card -> getCharge(chargeId, card))
-                    .map(chargeCardPair -> submitToGateway(chargeCardPair))
-            );
+                    .map(chargeCardPair -> submitToGateway(chargeCardPair)))
+                    .map(responsePromise -> interpretGatewayResponse(responsePromise)
+                            .map(resultPromise -> Pair.of(200, "success")));
 
-            gatewayObserver.subscribe(gatewayResponsePromise ->
-                    interpretGatewayResponse(gatewayResponsePromise)
-                            .then(result -> dispatchResponse(ctx, 200, result)));
+            Observable<Promise<Pair<Integer, String>>> timer = Observable.timer(500, TimeUnit.MILLISECONDS, RxRatpack.scheduler())
+                    .map(unit -> {
+                        System.out.println("[REACT] triggering timeout");
+                        return Promise.value(Pair.of(202, "accepted"));
+                    });
+
+            Observable.merge(authWorkflow, timer)
+                    .subscribe(conditionalDispatchSubscriber(ctx));
         };
+    }
+
+    private Subscriber<Promise<Pair<Integer, String>>> conditionalDispatchSubscriber(final Context ctx) {
+        return new Subscriber<Promise<Pair<Integer, String>>>() {
+            private AtomicBoolean dispatched = new AtomicBoolean(false);
+
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(Promise<Pair<Integer, String>> pairPromise) {
+                if (!dispatched.get()) {
+                    pairPromise.then(resultsPair -> {
+                        logDispatch(resultsPair);
+                        dispatchResponse(ctx, resultsPair.getLeft(), resultsPair.getRight());
+                    });
+                    dispatched.set(true);
+                } else {
+                    pairPromise.then(resultsPair -> {
+                        logDispatch(resultsPair);
+                    });
+                }
+            }
+        };
+    }
+
+    private void logDispatch(Pair<Integer, String> resultsPair) {
+        System.out.println(format("processing result pair status = %s, result = %s", resultsPair.getLeft(), resultsPair.getRight()));
     }
 
     private void dispatchResponse(Context ctx, int status, String message) {
@@ -82,6 +132,7 @@ public class CardResource {
 
     private Promise<String> interpretGatewayResponse(Promise<ReceivedResponse> gatewayResponsePromise) {
         return gatewayResponsePromise.map(gatewayResponse -> {
+            System.out.println("[REACT] finished processing gateway response");
             if (gatewayResponse.getStatus().getCode() == 200) {
                 return "success";
             } else {
@@ -93,6 +144,7 @@ public class CardResource {
     private Promise<ReceivedResponse> submitToGateway(Pair<Charge, Card> cardAndCharge) {
         try {
             String cardString = mapper.writeValueAsString(cardAndCharge.getValue());
+            Thread.sleep(authDelay * 1000);
             return anHttpClient().post(URI.create("http://example.com"), requestSpec -> requestSpec.body(body -> body.text(cardString)));
         } catch (Exception e) {
             throw new RuntimeException(e);
