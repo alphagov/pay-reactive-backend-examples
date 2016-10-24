@@ -6,6 +6,7 @@ import org.glassfish.jersey.client.rx.rxjava.RxObservable;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import scala.Char;
 
 import javax.ws.rs.core.Response;
 import java.util.function.Consumer;
@@ -28,6 +29,12 @@ public class AuthorisationService {
                 .subscribe(postOperation(chargeId, callback));
     }
 
+    public void doAuthoriseHystrix(String chargeId, Card card, Consumer<String> callback) {
+        preOperation(chargeId).
+                switchMap(operationHystrix(card))
+                .subscribe(postOperation(chargeId, callback));
+    }
+
     private Action1<Response> postOperation(String chargeId, Consumer<String> callback) {
         return response -> {
             try {
@@ -45,6 +52,10 @@ public class AuthorisationService {
                 .request()
                 .rx()
                 .get();
+    }
+
+    private Func1<Charge, Observable<Response>> operationHystrix(Card card) {
+        return charge -> new WorldpayAuthoriseCommand(charge.getChargeId(), card).construct();
     }
 
     private Observable<Charge> preOperation(String chargeId) {

@@ -49,6 +49,19 @@ public class CardResource {
     }
 
     @POST
+    @Path("authoriseHystrix/{chargeId}")
+    public void authoriseHystrix(@PathParam("chargeId") String chargeId, Card card, @Suspended final AsyncResponse asyncResponse) {
+        asyncResponse.setTimeoutHandler(asyncResponse1 -> asyncResponse1.resume(new OperationAlreadyInProgressRuntimeException(chargeId)));
+        asyncResponse.setTimeout(1, TimeUnit.SECONDS);
+
+        new Thread(() -> {
+            validateCardDetails()
+                    .andThen(authoriseHystrixAndRespond(chargeId, card, asyncResponse))
+                    .apply(card);
+        }).start();
+    }
+
+    @POST
     @Path("authoriseKafka/{chargeId}")
     public void authoriseKafka(@PathParam("chargeId") String chargeId, Card card, @Suspended final AsyncResponse asyncResponse) {
         asyncResponse.setTimeoutHandler(asyncResponse1 -> asyncResponse1.resume(new OperationAlreadyInProgressRuntimeException(chargeId)));
@@ -79,6 +92,18 @@ public class CardResource {
                 asyncResponse.resume(Response.status(BAD_REQUEST).entity("{\"message\":\"invalid card details\"}").build());
             } else {
                 authService.doAuthorise(chargeId, card,
+                        response -> asyncResponse.resume(Response.ok(response).build()));
+            }
+            return null;
+        };
+    }
+
+    private Function<Boolean, Void> authoriseHystrixAndRespond(String chargeId, Card card, AsyncResponse asyncResponse) {
+        return valid -> {
+            if (!valid) {
+                asyncResponse.resume(Response.status(BAD_REQUEST).entity("{\"message\":\"invalid card details\"}").build());
+            } else {
+                authService.doAuthoriseHystrix(chargeId, card,
                         response -> asyncResponse.resume(Response.ok(response).build()));
             }
             return null;
