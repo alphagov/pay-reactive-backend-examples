@@ -1,6 +1,7 @@
 package firebreak.react.drop.resources;
 
 
+import com.google.inject.Inject;
 import firebreak.react.drop.model.Card;
 
 import javax.ws.rs.GET;
@@ -20,9 +21,12 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class CardResource {
 
     private final AuthorisationService authService;
+    private final KafkaAuthorisationService kafkaAuthorisationService;
 
-    public CardResource(AuthorisationService authService) {
+    @Inject
+    public CardResource(AuthorisationService authService, KafkaAuthorisationService kafkaAuthorisationService) {
         this.authService = authService;
+        this.kafkaAuthorisationService = kafkaAuthorisationService;
     }
 
     @GET
@@ -42,6 +46,31 @@ public class CardResource {
                     .andThen(authoriseAndRespond(chargeId, card, asyncResponse))
                     .apply(card);
         }).start();
+    }
+
+    @POST
+    @Path("authoriseKafka/{chargeId}")
+    public void authoriseKafka(@PathParam("chargeId") String chargeId, Card card, @Suspended final AsyncResponse asyncResponse) {
+        asyncResponse.setTimeoutHandler(asyncResponse1 -> asyncResponse1.resume(new OperationAlreadyInProgressRuntimeException(chargeId)));
+        asyncResponse.setTimeout(1, TimeUnit.SECONDS);
+
+        new Thread(() -> {
+            validateCardDetails()
+                    .andThen(authoriseKafkaAndRespond(chargeId, card, asyncResponse))
+                    .apply(card);
+        }).start();
+    }
+
+    private Function<Boolean, Void> authoriseKafkaAndRespond(String chargeId, Card card, AsyncResponse asyncResponse) {
+        return valid -> {
+            if (!valid) {
+                asyncResponse.resume(Response.status(BAD_REQUEST).entity("{\"message\":\"invalid card details\"}").build());
+            } else {
+                kafkaAuthorisationService.doGatewayAuthorise(chargeId, card,
+                        response -> asyncResponse.resume(Response.ok(response).build()));
+            }
+            return null;
+        };
     }
 
     private Function<Boolean, Void> authoriseAndRespond(String chargeId, Card card, AsyncResponse asyncResponse) {

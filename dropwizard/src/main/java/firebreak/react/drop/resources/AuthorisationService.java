@@ -11,10 +11,10 @@ import javax.ws.rs.core.Response;
 import java.util.function.Consumer;
 
 public class AuthorisationService {
+
     private final Long authorisationDelay;
 
     public AuthorisationService() {
-        //forratpack
         authorisationDelay = 2L;
     }
 

@@ -78,6 +78,7 @@ public class KafkaTestEnvironment {
 
     private void stopKafka() {
         try {
+            kafkaAdmin.cleanupTopics(topics);
             kafka.stop();
         } catch (Exception e) {
             throw new RuntimeException("error stopping kafka", e);

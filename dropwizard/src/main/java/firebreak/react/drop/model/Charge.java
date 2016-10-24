@@ -6,4 +6,8 @@ public class Charge {
     public Charge(String chargeId) {
         this.chargeId = chargeId;
     }
+
+    public String getChargeId() {
+        return chargeId;
+    }
 }

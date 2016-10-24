@@ -46,4 +46,9 @@ public class KafkaAdmin {
             AdminUtils.createTopic(zkUtils, topic, partitions, replication, topicConfig, RackAwareMode.Enforced$.MODULE$);
         });
     }
+
+    public void cleanupTopics(List<String> topics) {
+        System.out.println("DELETING TOPICS");
+        topics.forEach(topic -> AdminUtils.deleteTopic(zkUtils, topic));
+    }
 }

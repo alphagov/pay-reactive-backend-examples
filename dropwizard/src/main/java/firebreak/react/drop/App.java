@@ -1,8 +1,10 @@
 package firebreak.react.drop;
 
 import com.google.common.io.Resources;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import firebreak.react.drop.resources.CardResource;
-import firebreak.react.drop.resources.AuthorisationService;
+import firebreak.react.drop.resources.GatewayHandlerResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
 
@@ -13,8 +15,9 @@ public class App extends Application<AppConfiguration> {
 
     @Override
     public void run(AppConfiguration appConfiguration, Environment environment) throws Exception {
-
-        environment.jersey().register(new CardResource(new AuthorisationService(appConfiguration.getAuthorisationDelay())));
+        final Injector injector = Guice.createInjector(new AppModule(appConfiguration, environment));
+        environment.jersey().register(injector.getInstance(CardResource.class));
+        injector.getInstance(GatewayHandlerResource.class);
     }
 
     public static void main(String[] args) throws Exception {
@@ -24,7 +27,7 @@ public class App extends Application<AppConfiguration> {
         new App().run(args);
     }
 
-    private static String resourceFilePath(String relativePath) throws URISyntaxException {
+    public static String resourceFilePath(String relativePath) throws URISyntaxException {
         return new File(Resources.getResource(relativePath).toURI()).getAbsolutePath();
     }
 }
