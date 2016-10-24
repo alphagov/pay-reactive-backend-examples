@@ -43,6 +43,7 @@ This is about how to handle outbound HTTP/REST requests in a non-blocking way.
 
   * See [dropwizard example](https://github.com/alphagov/pay-firebreak-react-backend/blob/master/dropwizard/src/main/java/firebreak/react/drop/resources/AuthorisationService.java#L42)
   * See [ratpack example](https://github.com/alphagov/pay-firebreak-react-backend/blob/master/ratpack/src/main/java/firebreak/react/rat/CardResource.java#L144)
+  * See [hystrix based example](https://github.com/alphagov/pay-firebreak-react-backend/blob/master/dropwizard/src/main/java/firebreak/react/drop/resources/AuthorisationService.java#L57)
 
 
 ####3. Handling internal workflows 
@@ -67,12 +68,13 @@ This is about how we can compose a internal workflow of bunch of functions toget
 ###References
 
 1. RxJava [rxjava](https://github.com/ReactiveX/RxJava)
-2. Guvava LitenableFutures [Guvava](https://github.com/google/guava/wiki/ListenableFutureExplained)
-3. Jersey 
+2. Hystrix [hystrix](https://github.com/Netflix/Hystrix) 
+3. Guvava LitenableFutures [Guvava](https://github.com/google/guava/wiki/ListenableFutureExplained)
+4. Jersey 
  - [Reactive Client](https://jersey.java.net/documentation/latest/user-guide.html#rx-client)
  - [AsyncResponse](https://jersey.java.net/documentation/latest/user-guide.html#d0e10296)
-4. Ratpack [Ratpack](https://ratpack.io/manual/current/)
-5. Java8  [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
+5. Ratpack [Ratpack](https://ratpack.io/manual/current/)
+6. Java8  [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
 
 Other options (not explored)
 
