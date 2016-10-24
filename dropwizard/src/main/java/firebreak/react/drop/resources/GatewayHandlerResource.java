@@ -25,6 +25,11 @@ public class GatewayHandlerResource {
 
     public GatewayHandlerResource() {
 
+        //The design here is to poll the relevant topic at every 500 ms to see any requests for card authorisation
+        //Given that this is a singleton instance, this means only N number of requests at every 500ms handled at most. (Whatever accumelated)
+        // Ideally there has to be many of these at a running at a shorter frequency (across partitions perhaps) so that
+        // the client's do not need to wait for too long to get a auth response.
+
         Observable.interval(500, TimeUnit.MILLISECONDS)
                 .subscribe(handleWorldpayRequestIfExist());
     }
