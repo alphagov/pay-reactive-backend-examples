@@ -7,7 +7,7 @@ resources are based on Dropwizard/Jersey tech stack.
 Dropwizard is based on Jetty, a lightweight java http/servlet container. Architecturally, jetty is a thread based 
 synchronous (blocking) request processing container, similar to many other traditional java servlet containers.
 
-Over the last decade or so asynchronous (non-blocking) request processing architectures are gaining huge traction across the industry due to
+Over the last decade or so, asynchronous/non-blocking request processing architectures are gaining huge traction across the industry, primarily due to
 its capabilities of optimum usage of available resources (H/W, S/W) allowing significantly higher throughput. Although this has already been widely 
 adopted in non-Java technologies (e.g. Node.js, Scala/Akka), it has been a slow progress in Java due to its lack of language features (functional) 
 and lack of libraries / frameworks. However, over the last few years with the introduction of Java 8 features and the appearance of 
@@ -17,8 +17,11 @@ asynchronous non-blocking architectures in Java technology.
 The biggest challenge yet is the change of mentality in developer community from a more traditional synchronous programming model to a more functional / reactive 
 programming model in order to gain the advantages these recent developments. 
  
-This repository presents couple of alternative non-blocking programming models that is viable for GOV.UK Pay.
-Hoping this would provide few alternative reference models for more wider adoption.     
+This repository presents few alternative non-blocking programming models / patterns that is viable for GOV.UK Pay.
+Hoping this would provide a showcase of reference models for more wider adoption.   
+  
+Here is a good reference to read more about [`reactive programming`](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754) principles and examples.
+
 
 Here's a comparison of Dropwizard vs Ratpack. 
 http://phillbarber.blogspot.co.uk/2016/01/choosing-between-ratpack-and-dropwizard.html
