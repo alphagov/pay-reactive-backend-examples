@@ -1,30 +1,25 @@
-## GOV.UK Pay firebreak 
+## Java - reactive backend examples
 
-### Reactive Backend
+This repository contains a collection of examples/patterns that can be adopted to make a java based micorservice `reactive`.
+   
+*GOV.UK Pay*, a payment platform for the government consists of many microservices. Our backend is [`RESTFUL`](https://en.wikipedia.org/wiki/Representational_state_transfer) by default, and we use [`Dropwizard`](http://www.dropwizard.io/) for most of java based microservices. 
+Dropwizard is based on Jetty, a lightweight java http/servlet container. 
+Architecturally, jetty is a thread based synchronous (blocking) request processing container, similar to many other traditional java servlet containers.
 
-GOV.UK Pay adopts Dropwizard as the container for backend microservices. Pretty much all of GOV.UK Pay's RESTFUL
-resources are based on Dropwizard/Jersey tech stack.
-Dropwizard is based on Jetty, a lightweight java http/servlet container. Architecturally, jetty is a thread based 
-synchronous (blocking) request processing container, similar to many other traditional java servlet containers.
+Over the last decade or so, asynchronous/non-blocking request processing architectures are gaining huge traction across the industry, 
+primarily due to the capabilities of optimum usage of available resources (H/W, S/W) allowing significantly higher throughput. 
+Although this model already been widely used in other (non-java) tech stacks (e.g. NodeJs, Scala/Akka), it has been a slow progress in Java community due to its lack of language features (functional) 
+and lack of libraries / frameworks. However, with the introduction of Java 8 features and the appearance of several reliable libraries/frameworks (e.g. guava listenable futures, Rx Java, Akka) Java landscape is slowly shifting towards 
+asynchronous non-blocking programming models.  
 
-Over the last decade or so, asynchronous/non-blocking request processing architectures are gaining huge traction across the industry, primarily due to
-its capabilities of optimum usage of available resources (H/W, S/W) allowing significantly higher throughput. Although this has already been widely 
-adopted in non-Java technologies (e.g. Node.js, Scala/Akka), it has been a slow progress in Java due to its lack of language features (functional) 
-and lack of libraries / frameworks. However, over the last few years with the introduction of Java 8 features and the appearance of 
-several popular libraries and frameworks (e.g. guava listenable futures, Rx Java, Akka) the landscape is slowly shifting towards 
-asynchronous non-blocking architectures in Java technology. 
-
-The biggest challenge yet is the change of mentality in developer community from a more traditional synchronous programming model to a more functional / reactive 
-programming model in order to gain the advantages these recent developments. 
+The biggest challenge yet is the change of mentality among the developer community from a more traditional synchronous programming models to more functional / reactive 
+programming models in order to gain the advantages these recent developments. 
  
-This repository presents few alternative non-blocking programming models / patterns that is viable for GOV.UK Pay.
-Hoping this would provide a showcase of reference models for more wider adoption.   
+This repository presents few alternative non-blocking programming models / patterns and technologies for Java. We expect to adopt these (and possibly more) as we extend GOV.UK Pay in future.   
   
-Here is a good reference to read more about [`reactive programming`](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754) principles and examples.
-
-
-Here's a comparison of Dropwizard vs Ratpack. 
-http://phillbarber.blogspot.co.uk/2016/01/choosing-between-ratpack-and-dropwizard.html
+### Further Reading  
+- Here is a good reference to read more about [`reactive programming`](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754) principles and examples.
+- Here's a comparison of Dropwizard vs Ratpack. http://phillbarber.blogspot.co.uk/2016/01/choosing-between-ratpack-and-dropwizard.html
 
 ### Examples.
 
