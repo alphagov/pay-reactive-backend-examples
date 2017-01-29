@@ -9,6 +9,7 @@ import firebreak.react.rat.model.Charge;
 import org.apache.commons.lang3.tuple.Pair;
 import ratpack.exec.Promise;
 import ratpack.func.Block;
+import ratpack.func.Function;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
 import ratpack.http.TypedData;
@@ -16,6 +17,8 @@ import ratpack.http.client.HttpClient;
 import ratpack.http.client.ReceivedResponse;
 import ratpack.rx.RxRatpack;
 import ratpack.server.ServerConfig;
+import ratpack.websocket.*;
+import ratpack.websocket.internal.DefaultWebSocket;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -164,22 +167,65 @@ public class CardResource {
     }
 
     private Card validateCardDetails(TypedData bodyData) {
-        try {
-            Card card = mapper.readValue(bodyData.getText(), Card.class);
-            if (isBlank(card.getCardHolder()) ||
-                    isBlank(card.getCardNumber()) ||
-                    isBlank(card.getCvc()) ||
-                    isBlank(card.getAddress())) {
-                throw new RuntimeException("invalid card details");
-            }
-            return card;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        Card card = readCardData(bodyData.getText());
+        if (isBlank(card.getCardHolder()) ||
+                isBlank(card.getCardNumber()) ||
+                isBlank(card.getCvc()) ||
+                isBlank(card.getAddress())) {
+            throw new RuntimeException("invalid card details");
         }
+        return card;
 
     }
 
     public Pair<Charge, Card> getCharge(String chargeId, Card card) {
         return Pair.of(new Charge(chargeId), card);
     }
+
+    public Handler authoriseWebSocket() {
+        return ctx -> WebSockets.websocket(ctx, handleAuthorisationWebSocket(ctx));
+
+    }
+
+    private WebSocketHandler<String> handleAuthorisationWebSocket(Context ctx) {
+        return new WebSocketHandler<String>() {
+            private WebSocket webSocket;
+
+            @Override
+            public String onOpen(WebSocket webSocket) throws Exception {
+                this.webSocket = webSocket;
+                return "{\"message\":\"welcome authorise websocket\"}";
+            }
+
+            @Override
+            public void onClose(WebSocketClose<String> close) throws Exception {
+                if(close.isFromClient()){
+                    System.out.println("client closed connection");
+                } else {
+                    System.out.println("server closed connection");
+                }
+            }
+
+            @Override
+            public void onMessage(WebSocketMessage<String> frame) throws Exception {
+                String chargeId = ctx.getPathTokens().get("chargeId");
+                Observable.fromCallable(() -> readCardData(frame.getText()))
+                        .map(card -> getCharge(chargeId, card))
+                        .map(chargeCardPair -> submitToGateway(chargeCardPair))
+                        .map(responsePromise -> interpretGatewayResponse(responsePromise))
+                        .subscribe(gatewayResponse ->
+                                gatewayResponse.then(responseString -> webSocket.send(responseString)));
+
+            }
+        };
+    }
+
+    private Card readCardData(String text) {
+        try {
+            return mapper.readValue(text, Card.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

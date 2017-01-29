@@ -40,10 +40,10 @@ public class CardResourceHystrixTest {
     }
 
     private String cardJson() throws JsonProcessingException {
-        ImmutableMap<String, String> cardDetails = ImmutableMap.of("cardHolder", "Rupert Merdoch",
+        ImmutableMap<String, String> cardDetails = ImmutableMap.of("cardHolder", "a name",
                 "cardNumber", "1234567890",
                 "cvc", "121",
-                "address", "St Martinis");
+                "address", "an address line");
         return objectMapper.writeValueAsString(cardDetails);
     }
 
