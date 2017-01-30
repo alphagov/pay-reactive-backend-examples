@@ -26,6 +26,7 @@ public class App {
             chain
                     .path("authorise/:chargeId", cardResource.authorise())
                     .path("authoriseObserve/:chargeId", cardResource.authoriseObserve())
+                    .path("authoriseWebSocket/:chargeId", cardResource.authoriseWebSocket())
                     .get(ctx -> ctx.render("{\"message\": \"Hello from (Dean Martin)\"}"));
         };
     }
