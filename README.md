@@ -1,5 +1,7 @@
 ## Java - reactive backend examples
 
+> As of September 2021 this repository is no longer actively maintained by the GOV.UK Pay team.
+
 This repository contains a collection of examples/patterns that can be adopted to make a java based micorservice `reactive`.
    
 *GOV.UK Pay*, a payment platform for the government consists of many microservices. Our backend is [`RESTFUL`](https://en.wikipedia.org/wiki/Representational_state_transfer) by default, and we use [`Dropwizard`](http://www.dropwizard.io/) for most of java based microservices. 
